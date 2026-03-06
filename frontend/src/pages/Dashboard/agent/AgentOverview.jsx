@@ -9,6 +9,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import { selectUser } from '../../../store/authSlice';
+import Avatar from '../../../components/Avatar';
 import { workers, placements, agentActivity, agentStats, agentMonthlyData } from '../data/dummyData';
 
 const getGreeting = () => {
