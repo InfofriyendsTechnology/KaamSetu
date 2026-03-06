@@ -620,4 +620,4 @@ function LandingPage() {
   );
 }
 
-export default LandingPa
+export default LandingPage;

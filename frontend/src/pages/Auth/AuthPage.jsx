@@ -1,128 +1,96 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiBriefcase, FiUsers, FiArrowLeft } from 'react-icons/fi';
-import { HiOutlineUserGroup } from 'react-icons/hi2';
 import { selectIsDark } from '../../store/themeSlice';
+import slide1 from '../../assets/illustrations/slide1.webp';
+import slide2 from '../../assets/illustrations/slide2.webp';
+import slide3 from '../../assets/illustrations/slide3.webp';
+import slide4 from '../../assets/illustrations/slide4.webp';
 import Login  from './Login';
 import Signup from './Signup';
 import './Auth.scss';
 
-// Brand panel role chips data
-const BRAND_ROLES = [
-  {
-    icon: <FiBriefcase size={18} />,
-    label: 'Kaam Saheb',
-    sub: 'Employer — post & manage jobs',
-  },
-  {
-    icon: <FiUsers size={18} />,
-    label: 'Kaam Saathi',
-    sub: 'Worker — find work & get paid',
-  },
-  {
-    icon: <HiOutlineUserGroup size={18} />,
-    label: 'Kaam Setu',
-    sub: 'Agent — connect & earn commission',
-  },
-];
+const SLIDES = [slide1, slide2, slide3, slide4];
+const INTERVAL = 3800;
 
-// Animation variants for Login ↔ Signup slide
-const slideVariants = {
-  enter: (dir) => ({
-    x: dir > 0 ? 60 : -60,
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
-  },
-  exit: (dir) => ({
-    x: dir > 0 ? -60 : 60,
-    opacity: 0,
-    transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] },
-  }),
+const imgVariants = {
+  enter:  { opacity: 0, scale: 1.06 },
+  center: { opacity: 1, scale: 1,    transition: { duration: 0.7, ease: [0.4, 0, 0.2, 1] } },
+  exit:   { opacity: 0, scale: 0.97, transition: { duration: 0.4 } },
+};
+
+const formVariants = {
+  enter:  (dir) => ({ x: dir > 0 ? 48 : -48, opacity: 0 }),
+  center: { x: 0, opacity: 1, transition: { duration: 0.32, ease: [0.4, 0, 0.2, 1] } },
+  exit:   (dir) => ({ x: dir > 0 ? -48 : 48, opacity: 0, transition: { duration: 0.22 } }),
 };
 
 function AuthPage() {
-  const isDark   = useSelector(selectIsDark);
+  const isDark = useSelector(selectIsDark);
 
-  const [mode, setMode] = useState('login'); // 'login' | 'signup'
-  const [dir,  setDir]  = useState(1);       // slide direction
+  const [mode,    setMode]    = useState('login');
+  const [dir,     setDir]     = useState(1);
+  const [current, setCurrent] = useState(0);
 
-  const goLogin = () => {
-    setDir(-1);
-    setMode('login');
-  };
+  // Auto-cycle slides
+  useEffect(() => {
+    const t = setInterval(() => setCurrent(c => (c + 1) % SLIDES.length), INTERVAL);
+    return () => clearInterval(t);
+  }, []);
 
-  const goSignup = () => {
-    setDir(1);
-    setMode('signup');
-  };
+  const goLogin  = () => { setDir(-1); setMode('login');  };
+  const goSignup = () => { setDir(1);  setMode('signup'); };
 
   return (
     <div className="auth-page">
 
-      {/* ── LEFT BRAND PANEL ──────────────────────────────────────── */}
-      <aside className="auth-page__brand">
-        {/* Logo */}
-        <div className="auth-page__brand-logo">
-          {/* Dark bg panel → always use dark logo (white text) */}
-          <img src="/logo-dark.png" alt="KaamSetu" />
+      {/* LEFT — image slideshow only, no text/logo */}
+      <div className="auth-page__brand">
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={current}
+            src={SLIDES[current]}
+            alt="KaamSetu"
+            className="auth-page__brand-img"
+            variants={imgVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+          />
+        </AnimatePresence>
+
+        {/* Slide indicator dots only */}
+        <div className="auth-page__brand-overlay">
+          <div className="auth-page__brand-dots">
+            {SLIDES.map((_, i) => (
+              <button
+                key={i}
+                className={`auth-page__brand-dot${i === current ? ' auth-page__brand-dot--active' : ''}`}
+                onClick={() => setCurrent(i)}
+                aria-label={`Slide ${i + 1}`}
+              />
+            ))}
+          </div>
         </div>
+      </div>
 
-        {/* Tagline */}
-        <h2 className="auth-page__brand-tagline">
-          Where Work<br />Meets <span>Workers</span>
-        </h2>
+      {/* RIGHT — logo + form */}
+      <div className="auth-page__scroll">
 
-        <p className="auth-page__brand-sub">
-          Connecting employers, workers and local agents
-          into a trusted labor ecosystem across India.
-        </p>
-
-        {/* Role chips */}
-        <div className="auth-page__brand-roles">
-          {BRAND_ROLES.map((r) => (
-            <div key={r.label} className="auth-page__brand-role">
-              <div className="auth-page__brand-role-icon">{r.icon}</div>
-              <div className="auth-page__brand-role-info">
-                <strong>{r.label}</strong>
-                <span>{r.sub}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <p className="auth-page__brand-footer">
-          © 2025 KaamSetu · Smart Village Identity
-        </p>
-      </aside>
-
-      {/* ── RIGHT FORM PANEL ──────────────────────────────────────── */}
-      <div className="auth-page__form-panel">
-
-        {/* Mobile top bar — visible only below lg breakpoint */}
-        <div className="auth-page__mobile-top">
-          <Link to="/" className="auth-page__mobile-brand">
-            <img
-              src={isDark ? '/logo-dark.png' : '/logo-light.png'}
-              alt="KaamSetu"
-            />
+        {/* Logo at top of form panel */}
+        <div className="auth-page__panel-logo">
+          <Link to="/">
+            <img src={isDark ? '/logo-dark.png' : '/logo-light.png'} alt="KaamSetu" />
           </Link>
-
         </div>
 
-
-        {/* Animated Login / Signup card */}
         <AnimatePresence mode="wait" custom={dir}>
           <motion.div
             key={mode}
             className="auth-page__card"
             custom={dir}
-            variants={slideVariants}
+            variants={formVariants}
             initial="enter"
             animate="center"
             exit="exit"

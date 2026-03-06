@@ -13,219 +13,181 @@
 .auth-page {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: 100dvh;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--bg-primary);
-  overflow-x: hidden;
 
   @media (max-width: #{$bp-lg}) {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr;  // left panel hidden, right fills full width
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
   }
 }
 
 // =============================================================================
-// LEFT — BRAND PANEL
+// LEFT — IMAGE SLIDESHOW
 // =============================================================================
 
 .auth-page__brand {
-  position: sticky;
-  top: 0;
+  position: relative;
   height: 100dvh;
-  background: linear-gradient(145deg, #{$color-charcoal} 0%, #2a2d35 60%, #1a1d24 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: $space-4xl $space-3xl;
   overflow: hidden;
 
-  // Hide on mobile/tablet
   @media (max-width: #{$bp-lg}) {
     display: none;
   }
+}
 
-  // Decorative background blob
-  &::before {
-    content: '';
-    position: absolute;
-    top: -120px;
-    right: -80px;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(0, 171, 179, 0.18) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-  }
+// The sliding image (position absolute, full cover)
+.auth-page__brand-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  will-change: opacity, transform;
+}
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -80px;
-    left: -60px;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(0, 171, 179, 0.1) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-  }
+// Gradient overlay — top fade + strong bottom fade for caption
+.auth-page__brand-overlay {
+  position: absolute;
+  inset: 0;
+  // Only bottom fade needed — no text/logo at top anymore
+  background: linear-gradient(
+    to bottom,
+    transparent 60%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;  // dots stick to the bottom
+  padding: $space-2xl;
+  z-index: 2;
 }
 
 .auth-page__brand-logo {
-  margin-bottom: $space-xl;
+  text-decoration: none;
 
   img {
-    height: 48px;
+    height: 36px;
     width: auto;
     object-fit: contain;
+    display: block;
   }
 }
 
-.auth-page__brand-tagline {
-  font-size: $font-size-3xl;
-  font-weight: $font-weight-bold;
-  color: #ffffff;
-  line-height: $line-height-tight;
-  margin-bottom: $space-md;
-
-  span {
-    color: $color-teal;
-  }
-}
-
-.auth-page__brand-sub {
-  font-size: $font-size-base;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: $line-height-relaxed;
-  max-width: 340px;
-  margin-bottom: $space-3xl;
-}
-
-// Role chips
-.auth-page__brand-roles {
+.auth-page__brand-caption {
   display: flex;
   flex-direction: column;
-  gap: $space-md;
-  width: 100%;
-  max-width: 340px;
+  gap: $space-sm;
+
+  h2 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-extrabold;
+    color: #fff;
+    line-height: $line-height-tight;
+    margin: 0;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  p {
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.82);
+    margin: 0;
+    line-height: $line-height-relaxed;
+    max-width: 340px;
+  }
 }
 
-.auth-page__brand-role {
+.auth-page__brand-dots {
   display: flex;
-  align-items: center;
-  gap: $space-md;
-  padding: $space-md $space-lg;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: $radius-xl;
-  backdrop-filter: blur(8px);
-  transition: background $transition-fast, border-color $transition-fast;
-
-  &:hover {
-    background: rgba(0, 171, 179, 0.12);
-    border-color: rgba(0, 171, 179, 0.3);
-  }
-
-  &-icon {
-    width: 40px;
-    height: 40px;
-    background: rgba(0, 171, 179, 0.15);
-    border-radius: $radius-lg;
-    @include flex-center;
-    color: $color-teal;
-    flex-shrink: 0;
-  }
-
-  &-info {
-    display: flex;
-    flex-direction: column;
-
-    strong {
-      font-size: $font-size-sm;
-      font-weight: $font-weight-semibold;
-      color: #ffffff;
-    }
-
-    span {
-      font-size: $font-size-xs;
-      color: rgba(255, 255, 255, 0.5);
-    }
-  }
+  gap: $space-xs;
+  padding-bottom: $space-sm;
 }
 
-.auth-page__brand-footer {
-  margin-top: auto;
-  padding-top: $space-xl;
-  font-size: $font-size-xs;
-  color: rgba(255, 255, 255, 0.3);
-  position: relative;
-  z-index: 1;
+.auth-page__brand-dot {
+  height: 3px;
+  width: 22px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.38);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: width 0.3s ease, background 0.3s ease;
+
+  &--active {
+    width: 38px;
+    background: #fff;
+  }
 }
 
 // =============================================================================
 // RIGHT — FORM PANEL
 // =============================================================================
 
-.auth-page__form-panel {
+.auth-page__scroll {
+  background: var(--bg-primary);
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: $space-3xl $space-xl;
-  background: var(--bg-primary);
-
-  @media (max-width: #{$bp-sm}) {
-    padding: $space-2xl $space-md;
-    justify-content: flex-start;
-  }
-}
-
-// Mobile top bar (shown only on mobile, replaces the brand panel)
-.auth-page__mobile-top {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 460px;
-  margin-bottom: $space-2xl;
+  padding: $space-2xl $space-xl;
+  border-left: 1px solid var(--border-color);
+  transition: background $transition-normal, border-color $transition-normal;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 
   @media (max-width: #{$bp-lg}) {
-    display: flex;
+    border-left: none;
+    padding: $space-xl $space-md $space-2xl;
+    justify-content: flex-start;
+    align-items: stretch;    // full-width on mobile
+    overflow-y: visible;     // let the page scroll on mobile
+    min-height: 100dvh;
   }
 }
 
-.auth-page__mobile-brand {
+// Right-panel logo — shown above the form on all screens
+.auth-page__mobile-logo,
+.auth-page__panel-logo {
   display: flex;
-  align-items: center;
-  gap: $space-sm;
+  justify-content: center;
+  margin-bottom: $space-xl;
+
+  @media (max-width: #{$bp-lg}) {
+    justify-content: flex-start;
+    margin-bottom: $space-lg;
+  }
+
+  a { text-decoration: none; }
 
   img {
-    height: 36px;
+    height: 44px;
     width: auto;
     object-fit: contain;
+    display: block;
+
+    @media (max-width: #{$bp-lg}) {
+      height: 32px;
+    }
   }
 }
 
-// The card that wraps the form
+// Card — no heavy box, just width constraint
 .auth-page__card {
   width: 100%;
-  max-width: 460px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: $radius-2xl;
-  padding: $space-3xl;
-  box-shadow: var(--shadow-lg);
+  max-width: 440px;
+  align-self: center;  // re-center when parent uses align-items:stretch
 
-  // Dark mode — give card a slightly lighter bg so it lifts off the page
-  html.dark-mode & {
-    background: #2d3140;
-    border-color: rgba(178, 178, 178, 0.14);
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
-  }
-
-  @media (max-width: #{$bp-sm}) {
-    padding: $space-xl $space-lg;
-    border-radius: $radius-xl;
-    box-shadow: none;
-    border: none;
+  @media (max-width: #{$bp-lg}) {
+    max-width: 100%;  // full-width on all mobile screens
+    align-self: stretch;
   }
 }
 
@@ -234,15 +196,7 @@
 // =============================================================================
 
 .auth-page__form-logo {
-  display: flex;
-  justify-content: center;
-  margin-bottom: $space-lg;
-
-  img {
-    height: 28px;
-    width: auto;
-    object-fit: contain;
-  }
+  display: none; // logo handled by auth-page__mobile-logo in AuthPage
 }
 
 .auth-page__form-back {
@@ -272,23 +226,23 @@
   align-items: center;
   gap: $space-xs;
   margin-bottom: $space-xl;
+  width: 100%;
 }
 
 .auth-page__step-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: $radius-full;
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
   background: var(--border-color-strong);
-  transition: width $transition-normal, background $transition-normal;
+  transition: background $transition-normal;
 
-  &--active {
-    width: 24px;
+  &--active,
+  &--done {
     background: var(--color-accent);
   }
 
   &--done {
-    background: var(--color-accent);
-    opacity: 0.5;
+    opacity: 0.55;
   }
 }
 
@@ -328,7 +282,7 @@
   justify-content: center;
   gap: $space-xs;
   padding: $space-lg $space-sm;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border: 2px solid var(--border-color);
   border-radius: $radius-xl;
   cursor: pointer;
@@ -337,7 +291,7 @@
 
   &:hover {
     border-color: var(--color-accent);
-    background: var(--bg-hover);
+    background: var(--bg-card);
   }
 
   &--selected {
